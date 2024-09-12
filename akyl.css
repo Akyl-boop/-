@@ -1,0 +1,211 @@
+*{
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+.container{
+    width: 1200px;
+    margin: 0 auto;
+}
+nav{
+    display: flex;
+    justify-content: space-between;
+    padding-top: 20px;
+}
+.nav-logo{
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+    margin-top: 30px;
+}
+.list{
+    display: flex;
+    align-items: center;
+}
+.list li{
+    margin-left: 40px;
+    list-style: none;
+}
+.btns{
+    width: 155px;
+    height: 46px;
+    margin-right: -10px;
+    margin-top: 30px;
+    border-radius: 6px;
+    color: white;
+    background-color: #DC780B;
+    border-color: transparent;
+}
+.btns1{
+    width: 155px;
+    height: 46px;
+    margin-left: 40px;
+    margin-top: 30px;
+    border-radius: 6px;
+    color: #DC780B;
+    background-color: white;
+    border-color: #DC780B;
+}
+.hero{
+    display: flex;
+    align-items: center;
+}
+.nami{
+    width: 555px;
+    height: 161px;
+    font-size: 48px;
+    margin-top: -40px;
+}
+.drako{
+    width: 555px;
+    height: 43px;
+    font-size: 18px;
+    margin-top: 28px;
+    font-weight: 500;
+    color: #150C01;
+}
+.title{
+    text-align: center;
+}
+.neam{
+    width: 99px;
+    height: 19px;
+    font-weight: 500;
+    font-size: 25px;
+    margin-left: 550px;
+    margin-top: 100px;
+    color: #DC780B;
+}
+.gina{
+    width: 400px;
+    height: 35px;
+    font-size: 31px;
+    font-weight: 700;
+    margin-left: 405px;
+    margin-top: 10px;
+}
+.cards{
+    display: flex;
+    margin-top: 50px;
+    justify-content: space-between;
+}
+.der{
+    margin-left: 0px;
+}
+.fer{
+    font-size: 25px;
+    margin-top: 16px;
+    margin-left: -6px;
+    color: #150C01;
+}
+.ler{
+    margin-left: 100px;
+    margin-top: -67px;
+    display: flex;
+}
+.card1{
+    width: 290px;
+    height: 40px;
+    text-align: center;
+    font-size: 16px;
+    color: rgba(57, 56, 56, 0.722);
+    margin-left: 40px;
+}
+.mark{
+    margin-left: 0px;
+}
+.ger{
+    font-size: 25px;
+    margin-top: 16px;
+    margin-left: -6px;
+    color: #150C01;
+}
+.mano{
+    margin-left: 100px;
+    margin-top: -67px;
+    display: flex;
+}
+.card2{
+    width: 290px;
+    height: 40px;
+    text-align: center;
+    margin-left: 100px;;
+    font-size: 16px;
+    color: rgba(57, 56, 56, 0.722);
+    margin-left: 30px;
+}
+.na{
+    margin-left: 126px;
+}
+.her{
+    font-size: 25px;
+    margin-top: 11px;
+    margin-left: 99px;
+    color: #150C01;
+}
+.ma{
+    margin-left: 108px;
+    margin-top: -72px;
+    display: flex;
+}
+.card3{
+    text-align: center;
+    margin-left: 50px;
+}
+.raker{
+    display: flex;
+    text-align: center;
+    width: 290px;
+    height: 40px;
+    color: rgba(57, 56, 56, 0.722); 
+}
+.kat{
+    margin-top: 75px;
+}
+.fourth{
+    display: flex;
+    margin-top: -700px;
+    margin-left: 100px;
+}
+.title-disc{
+    color: #696969;
+    display: flex;
+    margin: 28 0;
+    margin-top: 15px;
+}
+.title-h4{
+    margin-top: 13px;
+    color: #DC780B;
+    margin-top: 90px;
+    font-size: 23px;
+}
+.title-w{
+    font-weight: 700;
+    font-size: 32px;
+    margin-top: 8px;
+}
+.fourth-text{
+    margin-left: 90px;
+}
+.class{
+    width: 99px;
+    height: 19px;
+    font-weight: 500;
+    font-size: 20px;
+    margin-left: 640px;
+    margin-top: 140px;
+    color: #DC780B;
+}
+.B-shyki{
+    width: 400px;
+    height: 35px;
+    font-size: 31px;
+    font-weight: 700;
+    margin-left: 510px;
+    margin-top: 15px;
+}
+.textmyAkyl{
+    width: 748px;
+    height: 146px;
+text-align: center;
+}
