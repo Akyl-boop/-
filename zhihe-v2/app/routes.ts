@@ -1,0 +1,50 @@
+import { index, layout, prefix, route, type RouteConfig } from "@react-router/dev/routes";
+
+export default [
+  layout("routes/store/layout.tsx", [
+    index("routes/store/home.tsx"),
+    route("catalog/:category?", "routes/store/catalog.tsx"),
+    route("product/:slug", "routes/store/product.tsx"),
+    route("checkout/:slug", "routes/store/checkout.tsx"),
+    route("order/:number", "routes/store/order.tsx"),
+    route("orders", "routes/store/my-orders.tsx"),
+    route("how-it-works", "routes/store/how-it-works.tsx"),
+    route("instructions", "routes/store/instructions.tsx"),
+    route("instructions/:slug", "routes/store/instruction.tsx"),
+    route("faq", "routes/store/faq.tsx"),
+    route("support", "routes/store/support.tsx"),
+    route("*", "routes/store/not-found.tsx"),
+  ]),
+
+  route("admin/login", "routes/admin/login.tsx"),
+  route("admin/setup", "routes/admin/setup.tsx"),
+  route("admin/logout", "routes/admin/logout.tsx"),
+  route("admin", "routes/admin/layout.tsx", [
+    index("routes/admin/dashboard.tsx"),
+    route("products", "routes/admin/products.tsx"),
+    route("products/:id", "routes/admin/product-edit.tsx"),
+    route("categories", "routes/admin/categories.tsx"),
+    route("orders", "routes/admin/orders.tsx"),
+    route("orders/:id", "routes/admin/order-detail.tsx"),
+    route("inventory", "routes/admin/inventory.tsx"),
+    route("instructions", "routes/admin/instructions.tsx"),
+    route("instructions/:id", "routes/admin/instruction-edit.tsx"),
+    route("customers", "routes/admin/customers.tsx"),
+    route("discounts", "routes/admin/discounts.tsx"),
+    route("discounts/:id", "routes/admin/discount-edit.tsx"),
+    route("analytics", "routes/admin/analytics.tsx"),
+    route("media", "routes/admin/media.tsx"),
+    route("settings", "routes/admin/settings.tsx"),
+    route("audit", "routes/admin/audit.tsx"),
+    route("account", "routes/admin/account.tsx"),
+  ]),
+
+  ...prefix("api", [
+    route("locale", "routes/api/locale.ts"),
+    route("webhooks/cryptobot", "routes/api/webhook-cryptobot.ts"),
+    route("order-status/:number", "routes/api/order-status.ts"),
+    route("admin/upload", "routes/api/admin-upload.ts"),
+  ]),
+  route("sitemap.xml", "routes/seo/sitemap.ts"),
+  route("robots.txt", "routes/seo/robots.ts"),
+] satisfies RouteConfig;

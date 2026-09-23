@@ -1,0 +1,10 @@
+node_modules
+/build
+/.react-router
+/.wrangler
+.dev.vars
+.env
+*.log
+.DS_Store
+/test-results
+/screenshots

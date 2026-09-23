@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "zhihe-v2",
+  "main": "./workers/app.ts",
+  "compatibility_date": "2026-09-01",
+  "observability": { "enabled": true },
+  "upload_source_maps": true,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "zhihe-v2",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "zhihe-v2-media" }],
+  "triggers": { "crons": ["*/5 * * * *"] },
+  "vars": {
+    "SITE_URL": "https://zhihe.cyou",
+    "CRYPTOBOT_NETWORK": "mainnet",
+    "ORDER_TTL_MINUTES": "60",
+    "MANUAL_ORDER_TTL_HOURS": "24"
+  }
+}
