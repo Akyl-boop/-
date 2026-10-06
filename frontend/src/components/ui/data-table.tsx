@@ -80,7 +80,7 @@ export function DataTable<T>({
                     className={cn("h-9 whitespace-nowrap px-4 text-left text-[11.5px] font-medium uppercase tracking-[0.04em] text-fg-3",
                       c.align === "right" && "text-right", c.align === "center" && "text-center", c.hide && hideCls[c.hide], c.headerClassName)}>
                     {c.sortKey && onSort ? (
-                      <button type="button" className={cn("inline-flex items-center gap-1 hover:text-fg", active && "text-fg")}
+                      <button type="button" className={cn("inline-flex items-center gap-1 uppercase tracking-[inherit] hover:text-fg", active && "text-fg")}
                         onClick={() => onSort(active && !desc ? `-${c.sortKey}` : active && desc ? c.sortKey! : `-${c.sortKey}`)}>
                         {c.header}
                         {active ? (desc ? <ArrowDown className="size-3" /> : <ArrowUp className="size-3" />) : null}

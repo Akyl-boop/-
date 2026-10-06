@@ -46,18 +46,28 @@ log = get_logger("api")
 _TRUSTED = [ipaddress.ip_network(n, strict=False) for n in settings.trusted_proxies]
 
 
-def _client_ip(request: Request) -> str:
-    peer = request.client.host if request.client else "0.0.0.0"
+def _is_trusted(ip: str) -> bool:
     try:
-        trusted = any(ipaddress.ip_address(peer) in net for net in _TRUSTED)
+        return any(ipaddress.ip_address(ip) in net for net in _TRUSTED)
     except ValueError:
-        trusted = False
-    if trusted:
-        fwd = request.headers.get("x-forwarded-for")
-        if fwd:
-            return fwd.split(",")[0].strip()
-        if real := request.headers.get("x-real-ip"):
-            return real.strip()
+        return False
+
+
+def _client_ip(request: Request) -> str:
+    """Real client IP. Forwarding headers are honoured only from trusted proxies, and the
+    X-Forwarded-For chain is walked right-to-left so a client cannot spoof its address."""
+    peer = request.client.host if request.client else "0.0.0.0"
+    if not _is_trusted(peer):
+        return peer
+    if fwd := request.headers.get("x-forwarded-for"):
+        hops = [h.strip() for h in fwd.split(",") if h.strip()]
+        for hop in reversed(hops):
+            if not _is_trusted(hop):
+                return hop
+        if hops:
+            return hops[0]
+    if real := request.headers.get("x-real-ip"):
+        return real.strip()
     return peer
 
 

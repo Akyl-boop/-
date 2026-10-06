@@ -6,6 +6,7 @@ Run with:  arq app.workers.main.WorkerSettings
 from __future__ import annotations
 
 import asyncio
+import logging
 import time
 from datetime import timedelta
 from typing import Any
@@ -253,6 +254,9 @@ async def cleanup(ctx: dict[str, Any]) -> None:
 
 async def startup(ctx: dict[str, Any]) -> None:
     setup_logging()
+    # arq's CLI attaches its own plain-text handler; route everything through ours (JSON + redaction).
+    for name in ("arq", "arq.worker", "arq.jobs", "arq.connections"):
+        logging.getLogger(name).handlers.clear()
     await heartbeat(ctx)
     log.info("worker_started")
 

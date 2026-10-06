@@ -40,3 +40,19 @@ def test_custom_emoji_handling() -> None:
 def test_template_escapes_values_but_not_safe_html() -> None:
     out = render_template("Hi {name}! {block} {missing}", {"name": "<b>x</b>", "block": SafeHtml("<i>ok</i>")})
     assert out == "Hi &lt;b&gt;x&lt;/b&gt;! <i>ok</i> {missing}"
+
+
+def test_client_ip_ignores_spoofed_forwarded_for() -> None:
+    from types import SimpleNamespace
+
+    from app.main import _client_ip
+
+    def req(peer: str, headers: dict[str, str]) -> SimpleNamespace:
+        return SimpleNamespace(client=SimpleNamespace(host=peer), headers=headers)
+
+    # Direct (untrusted) client: forwarding headers are ignored
+    assert _client_ip(req("203.0.113.9", {"x-forwarded-for": "1.2.3.4"})) == "203.0.113.9"
+    # Via trusted proxy: the right-most untrusted hop wins, a client-supplied prefix cannot spoof it
+    assert _client_ip(req("172.18.0.5", {"x-forwarded-for": "1.2.3.4, 198.51.100.7"})) == "198.51.100.7"
+    assert _client_ip(req("172.18.0.5", {"x-forwarded-for": "198.51.100.7, 10.0.0.2"})) == "198.51.100.7"
+    assert _client_ip(req("127.0.0.1", {"x-real-ip": "198.51.100.8"})) == "198.51.100.8"

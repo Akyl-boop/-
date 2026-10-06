@@ -1,0 +1,103 @@
+name: nexa
+
+x-backend: &backend
+  build: ./backend
+  image: nexa-backend:latest
+  restart: unless-stopped
+  env_file: .env
+  environment:
+    DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-nexa}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nexa}
+    REDIS_URL: redis://redis:6379/0
+    MEDIA_ROOT: /app/storage/media
+    BACKUP_DIR: /app/storage/backups
+  volumes:
+    - media:/app/storage/media
+    - backups:/app/storage/backups
+  depends_on:
+    postgres: { condition: service_healthy }
+    redis: { condition: service_healthy }
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nexa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-nexa}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nexa}"]
+      interval: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 20
+
+  api:
+    <<: *backend
+    command: ["api"]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/healthz"]
+      interval: 15s
+      retries: 10
+
+  worker:
+    <<: *backend
+    command: ["worker"]
+    depends_on:
+      api: { condition: service_healthy }
+
+  # Long-polling bot — only for setups without a public HTTPS domain (BOT_MODE=polling).
+  # In production use BOT_MODE=webhook: updates are handled by the api service.
+  bot:
+    <<: *backend
+    command: ["bot"]
+    profiles: ["polling"]
+    depends_on:
+      api: { condition: service_healthy }
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        BACKEND_URL: http://api:8000
+    image: nexa-frontend:latest
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@example.com}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+      - frontend
+
+volumes:
+  pgdata:
+  redisdata:
+  media:
+  backups:
+  caddy_data:
+  caddy_config:
