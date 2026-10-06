@@ -120,7 +120,7 @@ export function EmojiGrid({ onPick, onCustom, allowCustom }: { onPick: (e: strin
             <Input value={customFallback} onChange={(e) => setCustomFallback(e.target.value)} className="w-12 text-center" aria-label="Fallback emoji" title="Fallback emoji" />
             <Button size="md" variant="primary" disabled={!customId} onClick={() => onCustom(customId, customFallback || "⭐")}>Use</Button>
           </div>
-          <p className="mt-1.5 text-[11px] leading-snug text-fg-3">Get IDs from @idstickerbot or a sticker set. Shown only where Telegram supports custom emoji; the fallback is used elsewhere.</p>
+          <p className="mt-1.5 text-[11px] leading-snug text-fg-3">To get an ID, send an animated emoji to your bot from your linked admin account (or use /emojiid): it replies with the ID and tells you whether Telegram lets the bot send it. Elsewhere the fallback emoji is shown.</p>
         </div>
       ) : null}
     </div>

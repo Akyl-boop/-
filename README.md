@@ -198,6 +198,8 @@ In production the API logs every missing or insecure required value on startup.
 3. Optional, for **Telegram Stars** or **card payments**: open BotFather → *Payments* and connect a provider to get a provider token. See [Payment providers](#payment-providers).
 4. Optional, for **custom emoji** in messages and on buttons: Telegram allows bots to send custom emoji only if the bot has a purchased Fragment username. Button icons also work when the bot owner has Telegram Premium; check the current Bot API docs. Once your bot qualifies, turn on the two switches in *Bot Editor → Appearance*. Until then they stay off, and the bot sends the standard fallback emoji. The dashboard explains this instead of pretending custom emoji work.
 
+   **Test it and get IDs:** link your Telegram account (below), then send the bot a message containing an animated emoji (or a custom-emoji sticker; `/emojiid` shows the instructions). The bot replies with the emoji IDs, then sends a test message and checks whether Telegram kept the custom emoji. It tells you plainly whether the bot is allowed to send them. This works only for linked, active admins. Paste the ID into the dashboard's emoji picker.
+
 ### Linking your Telegram account (admins)
 
 Go to **Profile → Telegram**, click *Link Telegram* and send the displayed `/link <code>` to the bot. Once linked you can:

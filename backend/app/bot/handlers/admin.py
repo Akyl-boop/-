@@ -55,3 +55,54 @@ async def login_decision(cb: CallbackQuery, ctx: BotCtx) -> None:
                 (cb.message.html_text or "") + ("\n\n✅ <b>Approved</b>" if approved else "\n\n✕ <b>Denied</b>"))  # type: ignore[union-attr]
         except Exception:
             pass
+
+
+# ─── Custom (animated) emoji helper ─────────────────────────────────────────
+
+
+def _custom_emoji(message: Message) -> list[tuple[str, str]]:
+    """(custom_emoji_id, fallback emoji) pairs found in a message or custom-emoji sticker."""
+    found: list[tuple[str, str]] = []
+    if message.sticker is not None and message.sticker.custom_emoji_id:
+        found.append((message.sticker.custom_emoji_id, message.sticker.emoji or "⭐"))
+    text = message.text or message.caption or ""
+    for ent in message.entities or message.caption_entities or []:
+        if ent.type == "custom_emoji" and ent.custom_emoji_id:
+            found.append((ent.custom_emoji_id, ent.extract_from(text) or "⭐"))
+    return list(dict.fromkeys(found))
+
+
+async def _is_linked_admin(message: Message, ctx: BotCtx) -> bool:
+    if message.from_user is None:
+        return False
+    row = await ctx.session.execute(select(Admin.id).where(Admin.telegram_id == message.from_user.id, Admin.is_active.is_(True)))
+    return row.first() is not None
+
+
+@router.message(Command("emojiid"), _is_linked_admin)
+async def emoji_id_help(message: Message) -> None:
+    await message.answer(
+        "✨ <b>Custom emoji helper</b>\n\n"
+        "Send me a message containing animated (custom) emoji, or a custom-emoji sticker. "
+        "I'll reply with their IDs and check whether Telegram lets <b>this bot</b> send them.\n\n"
+        "Paste the ID into the dashboard's emoji picker (Custom emoji ID).")
+
+
+@router.message(_is_linked_admin, _custom_emoji)
+async def emoji_ids(message: Message) -> None:
+    items = _custom_emoji(message)[:10]
+    lines = [f"{fb}  <code>{cid}</code>" for cid, fb in items]
+    cid, fb = items[0]
+    try:
+        sent = await message.answer(f'<tg-emoji emoji-id="{cid}">{fb}</tg-emoji> ← delivery test')
+        kept = any(e.type == "custom_emoji" for e in (sent.entities or []))
+        verdict = (
+            "✅ Telegram kept the custom emoji — this bot <b>can</b> send animated emoji. Enable "
+            "<i>Bot Editor → Appearance → Custom emoji in messages</i>."
+            if kept else
+            "⛔ Telegram dropped the custom emoji, so users see the plain fallback. This bot is not allowed to send "
+            "them: it needs an additional username purchased on Fragment (or the ID is invalid). "
+            "Until then keep the switch off and use regular emoji or animated banners.")
+    except Exception as exc:  # report the Telegram error to the admin
+        verdict = f"⚠️ Telegram rejected the test message: {str(exc)[:200]}"
+    await message.answer("<b>Custom emoji IDs</b>\n" + "\n".join(lines) + "\n\n" + verdict)

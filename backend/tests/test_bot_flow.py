@@ -171,3 +171,35 @@ async def test_full_purchase_flow(bot_env, make_product) -> None:
     await chat.send("/start")
     await chat.click(lambda b: b[1] == "f:0")
     assert "?" in chat.last_text() or "вопрос" in chat.last_text().lower()
+
+
+async def test_admin_emoji_helper_reports_ids_and_permission(bot_env) -> None:
+    """A linked admin sends a custom emoji: the bot replies with its ID and whether Telegram kept it."""
+    from aiogram.types import MessageEntity
+
+    from app.services.seed import create_admin
+
+    bot, dp, session = bot_env
+    async with session_scope() as s:
+        admin = await create_admin(s, "emoji@test.dev", "Emoji", "EmojiPass12345", "owner")
+        admin.telegram_id = 55_000_777
+    eid = "5368324170671202286"
+
+    async def send_custom(user_id: int) -> None:
+        user = TgUser(id=user_id, is_bot=False, first_name="A", language_code="en")
+        msg = Message(message_id=next(_ids), date=datetime.now(UTC), chat=Chat(id=user_id, type="private"), from_user=user,
+                      text="🔥 hi", entities=[MessageEntity(type="custom_emoji", offset=0, length=2, custom_emoji_id=eid)])
+        await dp.feed_update(bot, Update(update_id=next(_ids), message=msg.as_(bot)))
+
+    def texts() -> list[str]:
+        return [getattr(c, "text", "") or "" for c in session.calls if getattr(c, "text", None)]
+
+    # Not an admin → ignored by the helper (falls through to the store, never reveals the feature)
+    await send_custom(55_000_999)
+    assert not any("Custom emoji IDs" in t for t in texts())
+
+    # Linked admin → ID is extracted; fake Telegram drops the entity, so the verdict says "not allowed"
+    await send_custom(55_000_777)
+    reply = next(t for t in texts() if "Custom emoji IDs" in t)
+    assert eid in reply and "dropped" in reply
+    assert any(f'emoji-id="{eid}"' in t for t in texts())  # the delivery test used the real tg-emoji tag

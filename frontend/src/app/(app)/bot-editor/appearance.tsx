@@ -43,7 +43,7 @@ export function AppearanceTab() {
       <Card>
         <CardHeader title="Custom emoji & button styles" description="Use only features your bot is allowed to use — Telegram silently falls back otherwise." />
         <CardBody className="divide-y divide-border">
-          {toggle("custom_emoji_in_messages", "Custom emoji in messages", "Requires your bot to have purchased a Fragment username. When off, <tg-emoji> is replaced with its fallback emoji.")}
+          {toggle("custom_emoji_in_messages", "Custom emoji in messages", "Requires your bot to have purchased a Fragment username. Send an animated emoji to the bot from your linked admin account to test: it replies with the ID and whether Telegram accepts it. When off, <tg-emoji> is replaced with its fallback emoji.")}
           {toggle("custom_emoji_on_buttons", "Custom emoji icons on buttons", "Bot API 9.4+: icon_custom_emoji_id on inline buttons (requires the bot owner to have Telegram Premium).")}
           {toggle("button_styles", "Colored buttons", "Bot API 9.4+: primary / success / danger button styles.")}
         </CardBody>
