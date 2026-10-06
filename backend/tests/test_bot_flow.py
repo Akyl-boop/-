@@ -203,3 +203,37 @@ async def test_admin_emoji_helper_reports_ids_and_permission(bot_env) -> None:
     reply = next(t for t in texts() if "Custom emoji IDs" in t)
     assert eid in reply and "dropped" in reply
     assert any(f'emoji-id="{eid}"' in t for t in texts())  # the delivery test used the real tg-emoji tag
+
+
+async def test_custom_emoji_configured_in_dashboard_reaches_telegram(bot_env) -> None:
+    """Configure custom emoji exactly like the dashboard does (API), then /start: text entity + button icon are sent."""
+    import httpx
+    from httpx import ASGITransport
+
+    from app.main import create_app
+
+    eid = "5368324170671202286"
+    app = create_app()
+    async with httpx.AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
+        r = await c.post("/api/auth/login", json={"email": "owner@test.dev", "password": "OwnerPass12345"})
+        assert r.status_code == 200
+        h = {"X-CSRF-Token": c.cookies.get("nexa_csrf", "")}
+        r = await c.put("/api/settings/bot", json={"custom_emoji_in_messages": True, "custom_emoji_on_buttons": True}, headers=h)
+        assert r.status_code == 200, r.text
+        r = await c.put("/api/content/texts/home.text",
+                        json={"values": {"en": f'Hello <tg-emoji emoji-id="{eid}">🔥</tg-emoji> {{first_name}}'}}, headers=h)
+        assert r.status_code == 200, r.text
+        menu = (await c.get("/api/menus/main")).json()["buttons"]
+        menu[0]["custom_emoji_id"] = eid
+        r = await c.put("/api/menus/main", json={"buttons": menu}, headers=h)
+        assert r.status_code == 200, r.text
+
+    bot, dp, session = bot_env
+    chat = Chatter(bot, dp, session, user_id=55_000_321)
+    await chat.send("/start")
+    sent = [c for c in session.calls if getattr(c, "text", None) or getattr(c, "caption", None)]
+    last = sent[-1]
+    body = getattr(last, "text", None) or getattr(last, "caption", None)
+    assert f'<tg-emoji emoji-id="{eid}">' in body, f"text sent to Telegram: {body!r}"
+    icons = [b.icon_custom_emoji_id for row in last.reply_markup.inline_keyboard for b in row if b.icon_custom_emoji_id]
+    assert icons == [eid], f"button icons sent: {icons}"
